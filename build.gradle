@@ -29,9 +29,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
-group = 'com.baeldung'
-version = '0.0.1-SNAPSHOT'
-description = 'java-websocket'
+group = 'org.growerp'
+version = '0.0.1'
+description = 'growerp-chat'
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 publishing {

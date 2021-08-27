@@ -9,7 +9,11 @@ but will communicate over a REST interface for user information and authorizatio
 
 to build: ./gradlew build
 to run in a jetty server locally: ./gradlew appRun
+
 to access in a browser on http://localhost:8080 for several different clients.
+
+or use the flutter app included:
+to start: flutter run
 
 ### Relevant articles where this component is based on:
 

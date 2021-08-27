@@ -1,10 +1,10 @@
-package com.baeldung.websocket;
+package org.growerp.websocket;
 
 import javax.websocket.EncodeException;
 import javax.websocket.Encoder;
 import javax.websocket.EndpointConfig;
 
-import com.baeldung.model.Message;
+import org.growerp.model.Message;
 import com.google.gson.Gson;
 
 public class MessageEncoder implements Encoder.Text<Message> {

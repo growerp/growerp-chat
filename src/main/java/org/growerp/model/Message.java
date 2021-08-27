@@ -1,4 +1,4 @@
-package com.baeldung.model;
+package org.growerp.model;
 
 public class Message {
     private String from;
