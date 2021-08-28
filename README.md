@@ -24,5 +24,5 @@ The second one is easy to create locally.
 The first one a bit more difficult but was the basis of this component.
 
 We also need:
-a simple REST client: https://www.javacodegeeks.com/2012/09/simple-rest-client-in-java.html
+a simple java http REST client: https://www.baeldung.com/java-http-request
 encode/decode json: https://www.w3schools.in/json/json-java/

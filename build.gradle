@@ -47,5 +47,6 @@ tasks.withType(JavaCompile) {
 }
 gretty {
     servletContainer = 'jetty9'
+    httpPort = 8081
     contextPath = '/'
 }
