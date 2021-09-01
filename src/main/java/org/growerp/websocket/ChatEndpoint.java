@@ -20,67 +20,72 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-@ServerEndpoint(value = "/chat/{username}/{apiKey}", decoders = MessageDecoder.class, encoders = MessageEncoder.class)
+@ServerEndpoint(value = "/{userId}/{apiKey}", decoders = MessageDecoder.class, encoders = MessageEncoder.class)
 public class ChatEndpoint {
     private Session session;
     private static final Set<ChatEndpoint> chatEndpoints = new CopyOnWriteArraySet<>();
     private static HashMap<String, String> users = new HashMap<>();
-
+    private static HashMap<String, String> usersApiKey = new HashMap<>();
+    String databaseBackend = System.getProperty("databaseBackend", "http://localhost:8080") + "/rest/s1/growerp/100/";
+    RestClient restClient = new RestClient(databaseBackend);
+    Logger logger = LoggerFactory.getLogger(ChatEndpoint.class);
+    String saveApiKey;
 
     @OnOpen
     public void onOpen(Session session,
-        @PathParam("username") String username,
+        @PathParam("userId") String userId,
         @PathParam("apiKey") String apiKey) throws IOException, EncodeException {
-        Logger logger = LoggerFactory.getLogger(ChatEndpoint.class);
-        logger.info("New connection received with username:" + username + " apiKey:" + apiKey );
+        logger.info("New connection request received with userId:" + userId + " apiKey:" + apiKey );
         // validate connection
-        RestClient restClient = new RestClient("http://localhost:8080/rest/s1/growerp/100/");
         if (restClient.validate(apiKey)) {
-            logger.info("New connection accepted with username:" + username);
+            logger.info("New connection accepted with userId:" + userId);
 
             this.session = session;
             chatEndpoints.add(this);
-            users.put(session.getId(), username);
+            users.put(session.getId(), userId);
+            usersApiKey.put(session.getId(), apiKey);
 
             Message message = new Message();
-            message.setFrom(username);
+            message.setFromUserId(userId);
             message.setContent("Connected!");
+            message.setChatRoomid("%%system%%");
             broadcast(message);
-        } else logger.info("Connection with username:" + username + " ignored");
+        } else logger.info("Connection with userId:" + userId + " ignored");
     }
 
     @OnMessage
     public void onMessage(Session session, Message message) throws IOException, EncodeException {
-        message.setFrom(users.get(session.getId()));
-        if (message.getFrom() == null) broadcast(message);
-        else chatEndpoints.forEach(endpoint -> {
-            synchronized (endpoint) {
-                try {
-                    Boolean found = false;
-                    if (endpoint.session.getId() == message.getFrom()) {
-                        endpoint.session.getBasicRemote()
-                            .sendObject(message);
-                        found = true;
-                    }
-                    if (found == false) {
-                        Message messageError = new Message();
-                        messageError.setTo(session.getId());
-                        messageError.setFrom("System");
-                        messageError.setContent("Connected!");                        message.setContent("User " + session.getId() + " not found");
-                        session.getBasicRemote().sendObject(message);
-                    }
-                } catch (IOException | EncodeException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        logger.info("receiving message from:" + message.getFromUserId() + " content: " + message.getContent());
+        message.setFromUserId(users.get(session.getId()));
+        String apiKey = usersApiKey.get(session.getId());
+        if (message.getToUserId() == null) broadcast(message);
+        else {              
+            chatEndpoints.forEach(endpoint -> {
+    //            if (endpoint.session.getId() == message.getToUserId()) {
+    
+                        logger.info("Sending message: " + message.getContent());
+                        synchronized (endpoint) {
+                            try {
+                                endpoint.session.getBasicRemote().sendObject(message);
+                                if (!restClient.storeMessage(apiKey, message.getContent(),
+                                    message.getChatRoomId())) {
+                                    logger.info("Saving chat message failed...room: " + message.getChatRoomId());
+                                }
+                            } catch (IOException | EncodeException e) {
+                                logger.info("chat message send failed....");
+                            }
+                        }
+    //              }
+            });
+        }
     }
 
     @OnClose
     public void onClose(Session session) throws IOException, EncodeException {
+        logger.info("closing websocket for user:" + session.getId());
         chatEndpoints.remove(this);
         Message message = new Message();
-        message.setFrom(users.get(session.getId()));
+        message.setFromUserId(users.get(session.getId()));
         message.setContent("Disconnected!");
         broadcast(message);
     }
@@ -91,13 +96,15 @@ public class ChatEndpoint {
     }
 
     private static void broadcast(Message message) throws IOException, EncodeException {
+        Logger logger = LoggerFactory.getLogger(ChatEndpoint.class);
         chatEndpoints.forEach(endpoint -> {
             synchronized (endpoint) {
                 try {
+                    logger.info("chat message sending....");
                     endpoint.session.getBasicRemote()
                         .sendObject(message);
                 } catch (IOException | EncodeException e) {
-                    e.printStackTrace();
+                    logger.info("chat message send failed....");
                 }
             }
         });
