@@ -1,7 +1,5 @@
 ## GrowERP chat
 
-Under development!
-
 this is companion for flutter GrowERP to enable simple chatting in a room or privately between company employees and customers/suppliers. All messages are exchanged in JSON format.
 
 It is a component which will run independently of the Moqui backend system
@@ -9,11 +7,6 @@ but will communicate over a REST interface for user information and authorizatio
 
 to build: ./gradlew build
 to run in a jetty server locally: ./gradlew appRun
-
-to access in a browser on http://localhost:8080 for several different clients.
-
-or use the flutter app included:
-to start: flutter run
 
 ### Relevant articles where this component is based on:
 
@@ -23,6 +16,6 @@ to start: flutter run
 The second one is easy to create locally.
 The first one a bit more difficult but was the basis of this component.
 
-We also need:
-a simple java http REST client: https://www.baeldung.com/java-http-request
-encode/decode json: https://www.w3schools.in/json/json-java/
+Interface to the Moqui server:
+- a simple java http REST client: https://www.baeldung.com/java-http-request
+- simple encode/decode json: https://www.w3schools.in/json/json-java/
