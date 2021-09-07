@@ -10,6 +10,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.growerp.model.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +54,7 @@ public class RestClient {
 
     }    
     
-    public Boolean storeMessage(String apiKey, String message, String chatRoomId) {
+    public Boolean storeMessage(String apiKey, Message message) {
         Boolean result = false;
         Logger logger = LoggerFactory.getLogger(RestClient.class);
         try {
@@ -66,8 +67,8 @@ public class RestClient {
             con.setReadTimeout(5000);
             // prepare parameters
             Map<String, String> parameters = new HashMap<>();
-            parameters.put("message", message);
-            parameters.put("chatRoomId", chatRoomId);
+            parameters.put("message", message.getContent());
+            parameters.put("chatRoomId", message.getChatRoomId());
             con.setDoOutput(true);
             DataOutputStream out = new DataOutputStream(con.getOutputStream());
             out.writeBytes(ParameterStringBuilder.getParamsString(parameters));

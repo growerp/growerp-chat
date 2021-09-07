@@ -35,6 +35,9 @@ public class ChatEndpoint {
     public void onOpen(Session session,
         @PathParam("userId") String userId,
         @PathParam("apiKey") String apiKey) throws IOException, EncodeException {
+
+        session.setMaxIdleTimeout(0);
+
         logger.info("New connection request received with userId:" + userId + " apiKey:" + apiKey );
         // validate connection
         if (restClient.validate(apiKey)) {
@@ -55,7 +58,9 @@ public class ChatEndpoint {
 
     @OnMessage
     public void onMessage(Session session, Message message) throws IOException, EncodeException {
-        logger.info("receiving message from:" + message.getFromUserId() + " content: " + message.getContent());
+        logger.info("receiving message from:" + message.getFromUserId() + 
+                    " content: " + message.getContent() +
+                    " chatRoomId: " + message.getChatRoomId());
         message.setFromUserId(users.get(session.getId()));
         String apiKey = usersApiKey.get(session.getId());
         if (message.getToUserId() == null) broadcast(message);
@@ -67,8 +72,7 @@ public class ChatEndpoint {
                         synchronized (endpoint) {
                             try {
                                 endpoint.session.getBasicRemote().sendObject(message);
-                                if (!restClient.storeMessage(apiKey, message.getContent(),
-                                    message.getChatRoomId())) {
+                                if (!restClient.storeMessage(apiKey, message)) {
                                     logger.info("Saving chat message failed...room: " + message.getChatRoomId());
                                 }
                             } catch (IOException | EncodeException e) {
