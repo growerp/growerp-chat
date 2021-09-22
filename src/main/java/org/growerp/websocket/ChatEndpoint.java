@@ -59,27 +59,30 @@ public class ChatEndpoint {
     @OnMessage
     public void onMessage(Session session, Message message) throws IOException, EncodeException {
         logger.info("receiving message from:" + message.getFromUserId() + 
+                    " to: " + message.getToUserId() +
                     " content: " + message.getContent() +
                     " chatRoomId: " + message.getChatRoomId());
         message.setFromUserId(users.get(session.getId()));
         String apiKey = usersApiKey.get(session.getId());
         if (message.getToUserId() == null) broadcast(message);
-        else {              
+        else {   
+            logger.info("#endpoints: " + chatEndpoints.size());           
             chatEndpoints.forEach(endpoint -> {
-    //            if (endpoint.session.getId() == message.getToUserId()) {
+
+                if (users.get(endpoint.session.getId()).equals(message.getToUserId())) {
     
-                        logger.info("Sending message: " + message.getContent());
-                        synchronized (endpoint) {
-                            try {
-                                endpoint.session.getBasicRemote().sendObject(message);
-                                if (!restClient.storeMessage(apiKey, message)) {
-                                    logger.info("Saving chat message failed...room: " + message.getChatRoomId());
-                                }
-                            } catch (IOException | EncodeException e) {
-                                logger.info("chat message send failed....");
+                    synchronized (endpoint) {
+                        try {
+                            logger.info("Sending chatmessage: " + message.getContent() + " to: " + message.getToUserId() + " sessionId:" + endpoint.session.getId());
+                            endpoint.session.getBasicRemote().sendObject(message);
+                            if (!restClient.storeMessage(apiKey, message)) {
+                                logger.info("Saving chat message failed...room: " + message.getChatRoomId());
                             }
+                        } catch (IOException | EncodeException e) {
+                            logger.info("chat message send failed....");
                         }
-    //              }
+                    }
+                }
             });
         }
     }
@@ -87,6 +90,8 @@ public class ChatEndpoint {
     @OnClose
     public void onClose(Session session) throws IOException, EncodeException {
         logger.info("closing websocket for user:" + session.getId());
+        users.remove(session.getId());
+        usersApiKey.remove(session.getId());
         chatEndpoints.remove(this);
         Message message = new Message();
         message.setFromUserId(users.get(session.getId()));
@@ -104,11 +109,10 @@ public class ChatEndpoint {
         chatEndpoints.forEach(endpoint -> {
             synchronized (endpoint) {
                 try {
-                    logger.info("chat message sending....");
                     endpoint.session.getBasicRemote()
                         .sendObject(message);
                 } catch (IOException | EncodeException e) {
-                    logger.info("chat message send failed....");
+                    logger.info("chat broadcast message send failed....");
                 }
             }
         });
