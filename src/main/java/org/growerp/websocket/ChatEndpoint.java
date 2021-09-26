@@ -26,7 +26,9 @@ public class ChatEndpoint {
     private static final Set<ChatEndpoint> chatEndpoints = new CopyOnWriteArraySet<>();
     private static HashMap<String, String> users = new HashMap<>();
     private static HashMap<String, String> usersApiKey = new HashMap<>();
-    String databaseBackend = System.getProperty("databaseBackend", "http://localhost:8080") + "/rest/s1/growerp/100/";
+    String databaseBackend = System.getenv("DATABASEBACKEND") != null ? 
+            (System.getenv("DATABASEBACKEND") + "/rest/s1/growerp/100/") :
+            "http://localhost:8081/rest/s1/growerp/100/" ;
     RestClient restClient = new RestClient(databaseBackend);
     Logger logger = LoggerFactory.getLogger(ChatEndpoint.class);
     String saveApiKey;
@@ -38,10 +40,12 @@ public class ChatEndpoint {
 
         session.setMaxIdleTimeout(0);
 
-        logger.info("New connection request received with userId:" + userId + " apiKey:" + apiKey );
+        logger.info("New connection request received with userId:" + 
+                userId + " sessionId: " + session.getId());
         // validate connection
         if (restClient.validate(apiKey)) {
-            logger.info("New connection accepted with userId:" + userId);
+            logger.info("New connection accepted from db: " + 
+                    databaseBackend + " with userId:" + userId);
 
             this.session = session;
             chatEndpoints.add(this);
@@ -53,11 +57,13 @@ public class ChatEndpoint {
             message.setContent("Connected!");
             message.setChatRoomid("%%system%%");
             broadcast(message);
-        } else logger.info("Connection with userId:" + userId + " ignored");
+        } else logger.info("Connection with userId:" + userId + 
+            " rejected by " + databaseBackend);
     }
 
     @OnMessage
-    public void onMessage(Session session, Message message) throws IOException, EncodeException {
+    public void onMessage(Session session, Message message)
+            throws IOException, EncodeException {
         logger.info("receiving message from:" + message.getFromUserId() + 
                     " to: " + message.getToUserId() +
                     " content: " + message.getContent() +
@@ -73,10 +79,13 @@ public class ChatEndpoint {
     
                     synchronized (endpoint) {
                         try {
-                            logger.info("Sending chatmessage: " + message.getContent() + " to: " + message.getToUserId() + " sessionId:" + endpoint.session.getId());
+                            logger.info("Sending chatmessage: " + message.getContent() +
+                                 " to: " + message.getToUserId() + " sessionId:" + 
+                                endpoint.session.getId());
                             endpoint.session.getBasicRemote().sendObject(message);
                             if (!restClient.storeMessage(apiKey, message)) {
-                                logger.info("Saving chat message failed...room: " + message.getChatRoomId());
+                                logger.info("Saving chat message failed...room: " + 
+                                message.getChatRoomId());
                             }
                         } catch (IOException | EncodeException e) {
                             logger.info("chat message send failed....");

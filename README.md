@@ -19,3 +19,6 @@ The first one a bit more difficult but was the basis of this component.
 Interface to the Moqui server:
 - a simple java http REST client: https://www.baeldung.com/java-http-request
 - simple encode/decode json: https://www.w3schools.in/json/json-java/
+
+start docker instance: 
+    docker run -p 8081:8080 -e "DATABASEBACKEND=http://host_ip_number:8080" chat

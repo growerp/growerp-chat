@@ -15,7 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RestClient {
-	private String urlString = "https://localhost:8080/rest/s1/growerp/100/";
+	private String urlString;
+    Logger logger = LoggerFactory.getLogger(RestClient.class);
 
     public RestClient(String url) {
         this.urlString = url;
@@ -23,8 +24,6 @@ public class RestClient {
     
     public Boolean validate(String apiKey) {
         Boolean result = false;
-        Logger logger = LoggerFactory.getLogger(RestClient.class);
-        logger.info("===web socket validation apikey: " + apiKey );
         try {
             URL url = new URL(urlString + "CheckApiKey");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
