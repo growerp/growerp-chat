@@ -28,7 +28,7 @@ public class ChatEndpoint {
     private static HashMap<String, String> usersApiKey = new HashMap<>();
     String databaseBackend = System.getenv("DATABASEBACKEND") != null ? 
             (System.getenv("DATABASEBACKEND") + "/rest/s1/growerp/100/") :
-            "http://localhost:8081/rest/s1/growerp/100/" ;
+            "http://localhost:8080/rest/s1/growerp/100/" ;
     RestClient restClient = new RestClient(databaseBackend);
     Logger logger = LoggerFactory.getLogger(ChatEndpoint.class);
     String saveApiKey;
