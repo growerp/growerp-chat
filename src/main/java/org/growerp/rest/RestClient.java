@@ -25,7 +25,7 @@ public class RestClient {
     public Boolean validate(String apiKey) {
         Boolean result = false;
         try {
-            URL url = new URL(urlString + "CheckApiKey");
+            URL url = new URL(urlString + "Authenticate");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
             con.setRequestProperty("Content-Type", "application/json");
@@ -42,7 +42,7 @@ public class RestClient {
                   while ((inputLine = in.readLine()) != null) {
                       content.append(inputLine);
                   }
-                  if (content.toString().contains("ok")) result = true;
+                  if (content.toString().contains("authenticate")) result = true;
                   in.close();
             }
             con.disconnect();
@@ -59,7 +59,7 @@ public class RestClient {
         try {
             URL url = new URL(urlString + "ChatMessage");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("PUT");
+            con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             con.setRequestProperty("api_key", apiKey);
             con.setConnectTimeout(5000);

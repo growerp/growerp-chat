@@ -13,5 +13,5 @@
 #
 
 FROM jetty
-ADD build/libs/growerp-chat-0.0.1.war /var/lib/jetty/webapps/root.war
+ADD build/libs/growerp-chat-0.0.2.war /var/lib/jetty/webapps/root.war
 EXPOSE 8080

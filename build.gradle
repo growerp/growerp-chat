@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.30'
-    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation 'ch.qos.logback:logback-classic:1.2.8'
     implementation 'ch.qos.logback:logback-core:1.2.3'
     implementation 'org.slf4j:jcl-over-slf4j:1.7.30'
     implementation 'com.google.code.gson:gson:2.8.0'
@@ -27,11 +27,11 @@ dependencies {
     implementation 'ch.qos.logback:logback-core:1.2.3'
     implementation 'org.slf4j:jcl-over-slf4j:1.7.30'
     implementation 'javax.websocket:javax.websocket-api:1.1'
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.13.1'
 }
 
 group = 'org.growerp'
-version = '0.0.1'
+version = '0.0.2'
 description = 'growerp-chat'
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
