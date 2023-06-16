@@ -1,3 +1,5 @@
+This is the last version which was used in GrowERP V0.9.5 This repository was then copied to the https://github.com/growerp/growerp/chat repository and maintained from there. So now from here discontinued
+
 ## GrowERP chat
 
 this is companion for flutter GrowERP to enable simple chatting in a room or privately between company employees and customers/suppliers. All messages are exchanged in JSON format.
